@@ -1,0 +1,22 @@
+{
+  "fields": {
+    "project": {
+      "id": "${projectId}"
+    },
+    "summary": "${summary}",
+    "issuetype": {
+      "id": "10001"
+    },
+    "assignee": {
+      "name": ""
+    },
+    "labels": [
+    ],
+    "timetracking": {
+      "originalEstimate": "10",
+      "remainingEstimate": "5"
+    },
+    "environment": "",
+    "description": ""
+  }
+}

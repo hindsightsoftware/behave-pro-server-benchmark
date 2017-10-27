@@ -1,0 +1,6 @@
+{
+  "r":[],
+  "c":["browser-metrics-plugin.contrib"],
+  "xc":["_super","atl.dashboard","jira.global","atl.general","jira.general"],
+  "xr":["com.atlassian.feedback.jira-feedback-plugin:button-resources-init"]
+}
