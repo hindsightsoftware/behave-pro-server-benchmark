@@ -175,11 +175,11 @@ def main():
         deleteUsers(baseurl, users)
         createUsers(baseurl, users)
 
-    if sys.argv[2] == "find":
+    elif sys.argv[2] == "find":
         users = getUsers(baseurl)
         print(users[sys.argv[3]])
 
-    if sys.argv[2] == "active":
+    elif sys.argv[2] == "active":
         users = getUsers(baseurl)
         active = getActive(users)
         file = open("users_with_roles.csv","w") 
@@ -187,7 +187,7 @@ def main():
         for key in active:
             file.write(key + "," + key)
 
-    if sys.argv[2] == "assign":
+    elif sys.argv[2] == "assign":
         users = getUsers(baseurl)
         active = getActive(users)
 
@@ -210,7 +210,7 @@ def main():
                 file.write(activeKeys[i] + "," + issueKeys[i] + "\n")
             offset = offset + len(activeKeys)
 
-    if sys.argv[2] == "dict":
+    elif sys.argv[2] == "dict":
         issues = getIssues(baseurl, 0, 200)
         file = open("issue_dictionary.csv","w") 
         file.write("searchToken,searchIssueKey\n")
@@ -222,7 +222,9 @@ def main():
                     file.write(token + "," + key + "\n")
                 except UnicodeEncodeError:
                     continue
-
+    
+    else:
+        raise RuntimeError("Unknown argument: " + sys.argv[2])
 
 if __name__ == "__main__":
     main()
