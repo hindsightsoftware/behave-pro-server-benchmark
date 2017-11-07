@@ -112,10 +112,10 @@ class BaseSimulation extends Simulation {
         }
         .pause(1)
         // Create 3 scenarios and update 5 times each
-        .repeat(3){
+        .repeat(5){
           exec(Scenarios.create)
           .exec(Scenarios.fetchAll)
-          .repeat(3){
+          .repeat(5){
             exec(Scenarios.addTag)
             .pause(1)
             .exec(Scenarios.update)
@@ -124,6 +124,9 @@ class BaseSimulation extends Simulation {
           .exec(Scenarios.link)
           .exec(Scenarios.fetch)
         }
+
+        // Export the feature with scenarios
+        .exec(Features.export)
 
         // Randomly select feature id and browse all scenarios
         .repeat(5){

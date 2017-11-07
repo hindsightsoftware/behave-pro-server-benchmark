@@ -40,6 +40,11 @@ object Features {
     .header(HttpHeaderNames.Accept, HttpHeaderValues.ApplicationJson)
   )
 
+  var export = exec(http("Fetures - export")
+    .get(session => "/rest/behavepro/1.0/project/" + session.get("projectId").as[String] + "/feature/" + session.get("featureId").as[String] + ".feature")
+    .header(HttpHeaderNames.Accept, "*/*")
+  )
+
   var browseAll = group("Feature - browse all"){
     exec(
       fetchAll
