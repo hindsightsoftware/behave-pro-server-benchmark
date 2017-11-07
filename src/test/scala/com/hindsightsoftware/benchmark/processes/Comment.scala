@@ -22,7 +22,7 @@ object Comment {
       .post("/secure/AjaxIssueAction!default.jspa")
       .header(HttpHeaderNames.ContentType, "application/x-www-form-urlencoded; charset=UTF-8")
       .header(HttpHeaderNames.Accept, "*/*")
-      .formParam("issueKey", "SOPA-251")
+      .formParam("issueKey", _.get("issueKey").as[String])
       .formParam("decorator", "none")
       .formParam("prefetch", "false")
       .formParam("shouldUpdateCurrentProject", "true")

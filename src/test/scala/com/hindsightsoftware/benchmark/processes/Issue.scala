@@ -50,12 +50,33 @@ object Issue {
   )
 
   var getFields = exec(http("Issue - get fields") // Find issue ID
-    .get("/rest/api/latest/issue/" + _.get("issueKey").as[String] + "?fields=summary")
+    .get("/rest/api/latest/issue/" + _.get("issueKey").as[String] + "?fields=summary,project")
     .header(HttpHeaderNames.Accept, HttpHeaderValues.ApplicationJson)
     .check(
       jsonPath("$.id").exists.saveAs("issueId"),
       jsonPath("$.fields.summary").exists.saveAs("summary"),
+      jsonPath("$.fields.project.id").exists.saveAs("projectId"),
     )
+  )
+
+  var fetchFeatures = exec(http("Issue - features")
+    .get("/rest/behavepro/1.0/project/" + _.get("projectId").as[String] + "/features")
+    .header(HttpHeaderNames.Accept, HttpHeaderValues.ApplicationJson)
+  )
+
+  var fetchApprovals = exec(http("Issue - approvals")
+    .get(session => "/rest/behavepro/1.0/project/"  + session.get("projectId").as[String] + "/issue/" + session.get("issueId").as[String])
+    .header(HttpHeaderNames.Accept, HttpHeaderValues.ApplicationJson)
+  )
+
+  var fetchScenarios = exec(http("Issue - scenarios")
+    .get(session => "/rest/behavepro/1.0/project/"  + session.get("projectId").as[String] + "/issue/" + session.get("issueId").as[String] + "/scenarios")
+    .header(HttpHeaderNames.Accept, HttpHeaderValues.ApplicationJson)
+  )
+
+  var fetchTestSessions = exec(http("Issue - test sessions")
+    .get(session => "/rest/behavepro/2.0/project/"  + session.get("projectId").as[String] + "/issue/" + session.get("issueId").as[String] + "/testsessions")
+    .header(HttpHeaderNames.Accept, HttpHeaderValues.ApplicationJson)
   )
 
   var browse = group("Issue - browse") {
@@ -76,7 +97,17 @@ object Issue {
       Hipchat.fetch
     ).exec(
       Resources.request("browse_issue_resources_3")
-    )
+    ).doIf(_.get("BehavePro").as[Boolean]){
+      exec(
+        fetchFeatures
+      ).exec(
+        fetchApprovals
+      ).exec(
+        fetchScenarios
+      ).exec(
+        fetchTestSessions
+      )
+    }
   }
 
   var search = exec(http("Issue - search")

@@ -222,7 +222,7 @@
             <executions>
               <execution>
                 <configuration>
-                  <simulationClass>com.hindsightsoftware.benchmark.JiraSimulation</simulationClass>
+                  <simulationClass>com.hindsightsoftware.benchmark.BehaveProSimulation</simulationClass>
                 </configuration>
                 <phase>integration-test</phase>
                 <goals>

@@ -1,5 +1,6 @@
 package com.hindsightsoftware.benchmark
 
+import java.text.SimpleDateFormat
 import java.util.concurrent.ThreadLocalRandom
 
 import com.typesafe.config.ConfigFactory
@@ -7,6 +8,7 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.core.feeder._
 import io.gatling.core.Predef._
+
 import scala.concurrent.duration._
 import processes._
 
@@ -45,10 +47,12 @@ class BaseSimulation extends Simulation {
   protected var runWithPlugin = false
 
   protected val scn = scenario("JiraSimulation")
-    .exec(session => {
-      session.set("BehavePro", runWithPlugin)
-      session
-    })
+    .exec{session => session.set("BehavePro", runWithPlugin)}
+    .exec{session =>
+      var formatUTC = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SS'Z'")
+      val timestamp: Long = System.currentTimeMillis / 1000
+      session.set("timestamp", formatUTC.format(timestamp))
+    }
     .feed(userFeeder)
 
     // Login
@@ -85,16 +89,20 @@ class BaseSimulation extends Simulation {
       // Create a new issue using the project ID
       .exec(Issue.create)
       .exec(Issue.browse)
-      // Fetch additional BehavePro data
-      .doIf(_.get("BehavePro").as[Boolean]){
-        pause(1) // TODO
-      }
       .pause(1)
 
       // Then comment on the new issue
       .exec(Comment.create)
       // Then update the new issue
       .exec(Issue.update)
+      // Then post a question
+      .doIf(_.get("BehavePro").as[Boolean]) {
+        exec(Questions.create)
+        .pause(1)
+        .exec(Questions.resolve)
+        .pause(1)
+        .exec(Approvals.approve)
+      }
       .pause(1)
 
       // Search with random keyword from dictionary
@@ -107,6 +115,9 @@ class BaseSimulation extends Simulation {
       // Fetch projects
       .exec(Project.browseAll)
       .pause(1)
+
+      // Browse boards
+      .exec(Agile.browseAll)
     }
 
     // Fetch agile boards

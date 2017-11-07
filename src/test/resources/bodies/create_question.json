@@ -1,0 +1,6 @@
+{
+  "userId":"${userKey}",
+  "question":"This is a question",
+  "resolved":false,
+  "timestamp":"${timestamp}"
+}

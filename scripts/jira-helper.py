@@ -61,6 +61,27 @@ class Http:
 #
 #cookie = response.getheader("set-cookie")
 
+# Get all projects
+def getProjects(baseurl):
+    request = Http("GET", baseurl + "/rest/api/2/project")
+    request.setHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
+    request.setUser("admin", "admin")
+    response = request.send()
+    projectIds = []
+    data = json.loads(response)
+    for project in data:
+        projectIds.append(project['id'])
+    return projectIds
+
+def enableProject(baseurl, projectId):
+    request = Http("GET", baseurl + "/rest/behavepro/2.0/project/" + projectId + "/admin/enabled")
+    request.setHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
+    request.setHeader("Content-Type", "application/json")
+    request.setUser("admin", "admin")
+    request.sendJson({
+        "enable": True
+    })
+
 # Get and merge users
 def getUsers(baseurl):
     try:
@@ -185,7 +206,7 @@ def main():
         file = open("users_with_roles.csv","w") 
         file.write("userKey,userPassword\n")
         for key in active:
-            file.write(key + "," + key)
+            file.write(key + "," + key + "\n")
 
     elif sys.argv[2] == "assign":
         users = getUsers(baseurl)
@@ -222,6 +243,11 @@ def main():
                     file.write(token + "," + key + "\n")
                 except UnicodeEncodeError:
                     continue
+
+    elif sys.argv[2] == "enable":
+        projects = getProjects(baseurl)
+        for project in projects:
+            enableProject(baseurl, project)
     
     else:
         raise RuntimeError("Unknown argument: " + sys.argv[2])
