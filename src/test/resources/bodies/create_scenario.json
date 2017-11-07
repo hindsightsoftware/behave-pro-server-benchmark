@@ -1,0 +1,11 @@
+{
+  "projectId":0,
+  "featureId":0,
+  "scenarioId":0,
+  "name":"${scenarioName}",
+  "steps":"${scenarioSteps}",
+  "outline":false,
+  "tags":[],
+  "revision":0,
+  "rank":null
+}

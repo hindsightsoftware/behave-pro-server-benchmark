@@ -8,6 +8,7 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.core.feeder._
 import io.gatling.core.Predef._
+import scala.util.Random
 
 import scala.concurrent.duration._
 import processes._
@@ -46,7 +47,7 @@ class BaseSimulation extends Simulation {
 
   protected var runWithPlugin = false
 
-  protected val scn = scenario("JiraSimulation")
+  protected val scn = scenario("Simulation")
     .exec{session => session.set("BehavePro", runWithPlugin)}
     .exec{session =>
       var formatUTC = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SS'Z'")
@@ -102,8 +103,39 @@ class BaseSimulation extends Simulation {
         .exec(Questions.resolve)
         .pause(1)
         .exec(Approvals.approve)
+        .pause(1)
+        .exec(Features.browseAll)
+        .exec(Features.create)
+        .repeat(3){
+          exec(Features.addTag)
+          .exec(Features.fetchAll) // For every tag creation there is a fetch!
+        }
+        .pause(1)
+        // Create 3 scenarios and update 5 times each
+        .repeat(3){
+          exec(Scenarios.create)
+          .exec(Scenarios.fetchAll)
+          .repeat(3){
+            exec(Scenarios.addTag)
+            .pause(1)
+            .exec(Scenarios.update)
+          }
+          .pause(1)
+          .exec(Scenarios.link)
+          .exec(Scenarios.fetch)
+        }
+
+        // Randomly select feature id and browse all scenarios
+        .repeat(5){
+          exec(session => {
+            val featuresList = session("featuresIds").as[Vector[Any]].toList
+            val featureId = featuresList(Random.nextInt(featuresList.size))
+            session.set("featureId", featureId)
+          })
+          .exec(Scenarios.fetchAll)
+          .pause(1)
+        }
       }
-      .pause(1)
 
       // Search with random keyword from dictionary
       .repeat(2) {
