@@ -96,8 +96,8 @@ class BaseSimulation extends Simulation {
       .exec(Comment.create)
       // Then update the new issue
       .exec(Issue.update)
-      // Then post a question
-      .doIf(_.get("BehavePro").as[Boolean]) {
+      // Then behave pro stuff
+      .doIf(session => session.get("BehavePro").as[Boolean]) {
         exec(Questions.create)
         .pause(1)
         .exec(Questions.resolve)
@@ -112,7 +112,7 @@ class BaseSimulation extends Simulation {
         }
         .pause(1)
         // Create 3 scenarios and update 5 times each
-        .repeat(5){
+        .repeat(3){
           exec(Scenarios.create)
           .exec(Scenarios.fetchAll)
           .repeat(5){
@@ -153,6 +153,11 @@ class BaseSimulation extends Simulation {
 
       // Browse boards
       .exec(Agile.browseAll)
+
+      // Test sessions
+      .doIf(session => session.get("BehavePro").as[Boolean]) {
+        exec(Sessions.browseAll)
+      }
     }
 
     // Fetch agile boards

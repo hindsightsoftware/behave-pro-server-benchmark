@@ -30,7 +30,7 @@ object Issue {
   }
 
   var fetchAll = exec(http("Issue - fetch all")
-    .get("/rest/api/2/search?jql=project=\"MOCE\"")
+    .get("/rest/api/2/search?jql=project=\"" + _.get("projectKey").as[String] + "\"")
     .header(HttpHeaderNames.ContentType, HttpHeaderValues.ApplicationJson)
     .header(HttpHeaderNames.Accept, HttpHeaderValues.ApplicationJson)
   )
