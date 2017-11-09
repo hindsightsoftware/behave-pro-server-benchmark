@@ -28,11 +28,12 @@
 		<jira.cloudformation.s3.restore.psql>sample-project.psql</jira.cloudformation.s3.restore.psql>
 		<jira.cloudformation.s3.restore.indexes>sample-project-indexes.tar.gz</jira.cloudformation.s3.restore.indexes>
 		<jira.cloudformation.rds.password>cloudformationexample</jira.cloudformation.rds.password>
+		<jira.cloudformation.s3.restore.enabled>false</jira.cloudformation.s3.restore.enabled>
 
     <!-- Upload addon properties -->
     <jira.addon.upload.url.file>${project.build.testOutputDirectory}/baseurl</jira.addon.upload.url.file>
-    <jira.addon.file>${project.basedir}/src/test/resources/myPlugin-1.0.0-SNAPSHOT.obr</jira.addon.file>
-    <jira.addon.key>com.atlassian.tutorial.myPlugin-key</jira.addon.key>
+    <jira.addon.file>${project.basedir}/src/test/resources/hosted-1.5.5-bpro_1380_snapshot_event_sourced_scenarios_for_an_issue.obr</jira.addon.file>
+    <jira.addon.key>pro.behave.hosted-key</jira.addon.key>
     <jira.addon.login.username>admin</jira.addon.login.username>
     <jira.addon.login.password>admin</jira.addon.login.password>
     <jira.addon.license.enabled>true</jira.addon.license.enabled>
@@ -64,7 +65,7 @@
 
 		<skipDownloadGatling>false</skipDownloadGatling>
 		<skipCloudFormation>false</skipCloudFormation>
-    <skipAddonUpload>false</skipAddonUpload>
+    <skipAddonUpload>true</skipAddonUpload>
 	</properties>
 
 	<dependencyManagement>
@@ -138,7 +139,7 @@
 			</plugin>
 
       <!-- Plugin for creating JIRA Data Center on AWS -->
-			<!-- <plugin>
+			<plugin>
 				<groupId>com.hindsightsoftware.upkeep</groupId>
 				<artifactId>jira-cloudformation-maven-plugin</artifactId>
 				<version>1.0</version>
@@ -178,10 +179,10 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin> -->
+			</plugin>
 
       <!-- Plugin for uploading addons into JIRA -->
-			<!-- <plugin>
+			<plugin>
         <groupId>com.hindsightsoftware.upkeep</groupId>
         <artifactId>jira-upload-addon-maven-plugin</artifactId>
         <version>1.0</version>
@@ -197,7 +198,7 @@
             </configuration>
           </execution>
         </executions>
-      </plugin> -->
+      </plugin>
     </plugins>
   </build>
 

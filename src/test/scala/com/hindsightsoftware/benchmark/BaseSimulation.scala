@@ -115,7 +115,7 @@ class BaseSimulation extends Simulation {
         .repeat(3){
           exec(Scenarios.create)
           .exec(Scenarios.fetchAll)
-          .repeat(5){
+          .repeat(3){
             exec(Scenarios.addTag)
             .pause(1)
             .exec(Scenarios.update)
@@ -141,10 +141,14 @@ class BaseSimulation extends Simulation {
       }
 
       // Search with random keyword from dictionary
-      .repeat(2) {
+      .repeat(1) {
         feed(searchFeeder)
         .exec(Issue.search)
         .pause(1)
+        .repeat(2){
+          exec(Issue.searchAll)
+          .pause(1)
+        }
       }
 
       // Fetch projects
@@ -156,7 +160,20 @@ class BaseSimulation extends Simulation {
 
       // Test sessions
       .doIf(session => session.get("BehavePro").as[Boolean]) {
-        exec(Sessions.browseAll)
+        repeat(3) {
+          exec(Sessions.browseAll)
+          .exec(Sessions.create)
+          .pause(1)
+          .exec(Sessions.browse) // Open the created sessions
+          .pause(1)
+          .exec(Sessions.update)
+          .exec(Sessions.start)
+          .repeat(3) {
+            exec(Sessions.pause)
+            .exec(Sessions.resume)
+            .pause(1)
+          }
+        }
       }
     }
 

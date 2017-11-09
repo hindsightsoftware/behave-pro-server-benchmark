@@ -114,4 +114,9 @@ object Issue {
     .get("/rest/api/2/search?jql=summary+%7E+%22" + _.get("searchToken").as[String] + "%22")
     .header(HttpHeaderNames.Accept, HttpHeaderValues.ApplicationJson)
   )
+
+  var searchAll = exec(http("Issue - search all")
+    .get("/rest/api/2/search?jql=assignee%20in%20(currentUser())")
+    .header(HttpHeaderNames.Accept, HttpHeaderValues.ApplicationJson)
+  )
 }

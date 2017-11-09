@@ -1,0 +1,6 @@
+{
+  "charter":"",
+  "title":"${sessionName}",
+  "time":45,
+  "tester":"${userKey}"
+}
