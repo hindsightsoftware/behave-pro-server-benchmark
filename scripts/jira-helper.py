@@ -182,6 +182,75 @@ def assignIssue(baseurl, issue, user):
         "name": user
     })
 
+def getBoards(baseurl, offset):
+    request = Http("GET", baseurl + "/rest/agile/1.0/board?maxResults=50&startAt=" + str(offset))
+    request.setHeader("Content-Type", "application/json")
+    request.setUser("admin", "admin")
+    request.setHeader("Accept", "*/*")
+    response = request.send()
+    return json.loads(response)['values']
+
+def getBoardProject(baseurl, boardId):
+    request = Http("GET", baseurl + "/rest/agile/1.0/board/" + str(boardId) + "/project")
+    request.setHeader("Content-Type", "application/json")
+    request.setUser("admin", "admin")
+    request.setHeader("Accept", "*/*")
+    response = request.send()
+    return json.loads(response)['values'][0]
+
+def createSprint(baseurl, boardName, boardId):
+    request = Http("POST", baseurl + "/rest/agile/1.0/sprint")
+    request.setHeader("Content-Type", "application/json")
+    request.setUser("admin", "admin")
+    request.setHeader("Accept", "*/*")
+    response = request.sendJson({
+        "name": boardName + " sprint 1",
+        "startDate": "2017-11-01T15:22:00.000+10:00",
+        "endDate": "2018-11-01T01:22:00.000+10:00",
+        "originBoardId": boardId
+    })
+    
+def getBoardBacklog(baseurl, boardId):
+    request = Http("GET", baseurl + "/rest/agile/1.0/board/" + str(boardId) + "/backlog")
+    request.setHeader("Content-Type", "application/json")
+    request.setUser("admin", "admin")
+    request.setHeader("Accept", "*/*")
+    response = request.send()
+    issues = json.loads(response)['issues']
+    issueIds = []
+    for issue in issues:
+        issueIds.append(issue['id'])
+    return issueIds
+
+def getBoardSprint(baseurl, boardId):
+    request = Http("GET", baseurl + "/rest/agile/1.0/board/" + str(boardId) + "/sprint")
+    request.setHeader("Content-Type", "application/json")
+    request.setUser("admin", "admin")
+    request.setHeader("Accept", "*/*")
+    response = request.send()
+    return json.loads(response)['values'][-1]
+
+def moveIssues(baseurl, sprintId, issues):
+    request = Http("POST", baseurl + "/rest/agile/1.0/sprint/" + str(sprintId) + "/issue")
+    request.setHeader("Content-Type", "application/json")
+    request.setUser("admin", "admin")
+    request.setHeader("Accept", "*/*")
+    response = request.sendJson({
+        "issues": issues
+    })
+
+def startSprint(baseurl, sprintId, sprintName):
+    request = Http("PUT", baseurl + "/rest/agile/1.0/sprint/" + str(sprintId))
+    request.setHeader("Content-Type", "application/json")
+    request.setUser("admin", "admin")
+    request.setHeader("Accept", "*/*")
+    response = request.sendJson({
+        "state": "active",
+        "name": sprintName,
+        "startDate": "2017-11-01T15:22:00.000+10:00",
+        "endDate": "2018-11-01T01:22:00.000+10:00",
+    })
+
 import sys
 
 def main():
@@ -248,6 +317,43 @@ def main():
         projects = getProjects(baseurl)
         for project in projects:
             enableProject(baseurl, project)
+
+    elif sys.argv[2] == "sprints":
+        offset = 0
+        while True:
+            boards = getBoards(baseurl, offset)
+            if len(boards) == 0:
+                break
+            for board in boards:
+                if board['type'] == "scrum":
+                    createSprint(baseurl, board['name'], board['id'])
+            offset += 50
+
+    elif sys.argv[2] == "sprintissues":
+        offset = 0
+        while True:
+            boards = getBoards(baseurl, offset)
+            if len(boards) == 0:
+                break
+            for board in boards:
+                if board['type'] == "scrum":
+                    issues = getBoardBacklog(baseurl, board['id'])
+                    sprint = getBoardSprint(baseurl, board['id'])
+                    moveIssues(baseurl, sprint['id'], issues[0:5])
+            offset += 50
+
+    elif sys.argv[2] == "sprintstart":
+        offset = 0
+        while True:
+            boards = getBoards(baseurl, offset)
+            if len(boards) == 0:
+                break
+            for board in boards:
+                if board['type'] == "scrum":
+                    issues = getBoardBacklog(baseurl, board['id'])
+                    sprint = getBoardSprint(baseurl, board['id'])
+                    startSprint(baseurl, sprint['id'], sprint['name'])
+            offset += 50
     
     else:
         raise RuntimeError("Unknown argument: " + sys.argv[2])

@@ -10,8 +10,7 @@ object Sessions {
     .get(session => "/rest/agile/1.0/board?projectKeyOrId=" + session.get("projectKey").as[String])
     .header(HttpHeaderNames.Accept, HttpHeaderValues.ApplicationJson)
     .check(
-      jsonPath("$.values[*].id").findAll.optional.saveAs("boardIds"),
-      jsonPath("$.values[0].id").find.optional.saveAs("boardId")
+      jsonPath("$.values[*].id").findAll.optional.saveAs("boardIds")
     )
   )
 
@@ -19,7 +18,6 @@ object Sessions {
     .get(session => "/rest/agile/1.0/board/" + session.get("boardId").as[String] + "/sprint")
     .header(HttpHeaderNames.Accept, HttpHeaderValues.ApplicationJson)
     .check(
-      jsonPath("$.values").exists,
       jsonPath("$.values[*].id").findAll.optional.saveAs("sprintIds")
     )
   )
@@ -133,14 +131,18 @@ object Sessions {
       Resources.request("browse_test_sessions_resources_2")
     ).exec(
       fetchBoards
-    ).doIf(_.contains("boardId")){
+    ).doIf(_.contains("boardIds")){
+      exec(session => session.set("boardId", session.get("boardIds").as[Vector[String]].last))
+    }.doIf(_.contains("boardId")) {
       fetchSprint
     }.doIf(_.contains("sprintIds")){
       exec(session => session.set("sprintId", session.get("sprintIds").as[Vector[String]].last))
     }.doIf(_.contains("sprintId")){
       fetchSprintIssues
-    }.foreach("${sprintIssueIds}", "ssueId"){
-      fetchSessions
+    }.doIf(_.contains("sprintIssueIds")){ // Kanban boards have no sprints!
+      foreach("${sprintIssueIds}", "ssueId"){
+        fetchSessions
+      }
     }
   }
 }

@@ -8,7 +8,6 @@ class JiraSimulation extends BaseSimulation {
   runWithPlugin = false
 
   setUp(
-    //scn.inject(rampUsers(10) over(10 seconds))
-    scn.inject(atOnceUsers(1)) // Debug purposes only
-  ).protocols(httpConf)
+    scn.inject(rampUsers(100) over(600 seconds))
+  ).protocols(httpConf).maxDuration(30 minutes)
 }
