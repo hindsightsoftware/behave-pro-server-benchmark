@@ -150,12 +150,20 @@ def createUsers(baseurl, users):
 
         for group in data['groups']:
             print("Adding user " + key + " to group " + group)
-            request = Http("POST", "http://localhost:8080/rest/api/2/group/user?groupname=" + group)
+            request = Http("POST", baseurl + "/rest/api/2/group/user?groupname=" + group)
             request.setHeader("Content-Type", "application/json")
             request.setUser("admin", "admin")
             request.sendJson({
                 "name": key
             })
+
+def setPassword(baseurl, user, password):
+    request = Http("PUT", baseurl + "/rest/api/2/user?key=" + user)
+    request.setHeader("Content-Type", "application/json")
+    request.setUser("admin", "admin")
+    request.sendJson({
+        "password": password
+    })
 
 def getActive(users):
     active = {}
@@ -262,9 +270,11 @@ def main():
     
     if sys.argv[2] == "fix":
         users = getUsers(baseurl)
-        deleteUsers(baseurl, users)
-        createUsers(baseurl, users)
-
+        #deleteUsers(baseurl, users)
+        #createUsers(baseurl, users)
+        for userkey in users:
+            setPassword(baseurl, userkey, userkey)
+        
     elif sys.argv[2] == "find":
         users = getUsers(baseurl)
         print(users[sys.argv[3]])
@@ -289,29 +299,42 @@ def main():
         file.write("userKey,issueKey\n")
         offset = 0
 
-        for t in range(0, 100):
-            issues = getIssues(baseurl, offset, len(activeKeys))
-            issueKeys = []
+        issueKeys = []
+        for t in range(0, len(activeKeys)):
+            issues = getIssues(baseurl, offset, 10)
             for issue in issues:
                 issueKeys.append(issue['key'])
+            offset = offset + 10
+        
+        for i in range(0, len(activeKeys)):
+            for u in range(0, 10):
+                assignIssue(baseurl, issueKeys[i * 10 + u], activeKeys[i])
+                file.write(activeKeys[i] + "," + issueKeys[i * 10 + u] + "\n")
 
-            for i in range(0, len(activeKeys)):
-                assignIssue(baseurl, issueKeys[i], activeKeys[i])
-                file.write(activeKeys[i] + "," + issueKeys[i] + "\n")
-            offset = offset + len(activeKeys)
+        #for t in range(0, 100):
+        #    issues = getIssues(baseurl, offset, len(activeKeys))
+        #    issueKeys = []
+        #    for issue in issues:
+        #        issueKeys.append(issue['key'])
+        #
+        #    for i in range(0, len(activeKeys)):
+        #        assignIssue(baseurl, issueKeys[i], activeKeys[i])
+        #        file.write(activeKeys[i] + "," + issueKeys[i] + "\n")
+        #    offset = offset + len(activeKeys)
 
     elif sys.argv[2] == "dict":
-        issues = getIssues(baseurl, 0, 200)
         file = open("issue_dictionary.csv","w") 
         file.write("searchToken,searchIssueKey\n")
-        for issue in issues:
-            key = issue['key']
-            tokens = issue['fields']['summary'].split()
-            for token in tokens:
-                try:
-                    file.write(token + "," + key + "\n")
-                except UnicodeEncodeError:
-                    continue
+        for t in range(0, 10):
+            issues = getIssues(baseurl, t * 200, 200)
+            for issue in issues:
+                key = issue['key']
+                tokens = issue['fields']['summary'].split()
+                for token in tokens:
+                    try:
+                        file.write(token + "," + key + "\n")
+                    except UnicodeEncodeError:
+                        continue
 
     elif sys.argv[2] == "enable":
         projects = getProjects(baseurl)

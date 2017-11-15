@@ -25,7 +25,7 @@
 		<jira.cloudformation.s3.aws.credentails>${project.basedir}/src/test/resources/s3.aws.user/credentials</jira.cloudformation.s3.aws.credentails>
 		<jira.cloudformation.s3.aws.config>${project.basedir}/src/test/resources/s3.aws.user/config</jira.cloudformation.s3.aws.config>
 		<jira.cloudformation.s3.restore.bucket>matusnovak-gatling-tests</jira.cloudformation.s3.restore.bucket>
-		<jira.cloudformation.s3.restore.psql>large-jira-software-backup.dump</jira.cloudformation.s3.restore.psql>
+		<jira.cloudformation.s3.restore.psql>large-jira-software-backup-fixed.dump</jira.cloudformation.s3.restore.psql>
 		<jira.cloudformation.s3.restore.indexes>large-jira-software-indexes.tgz</jira.cloudformation.s3.restore.indexes>
 		<jira.cloudformation.rds.password>cloudformationexample</jira.cloudformation.rds.password>
 		<jira.cloudformation.s3.restore.enabled>true</jira.cloudformation.s3.restore.enabled>
@@ -58,7 +58,7 @@
 		<gatling.install.script>${project.basedir}/src/test/resources/install-gatling.sh</gatling.install.script>
 		<gatling.root>gatling-charts-highcharts-bundle-${gatling.version}</gatling.root>
 		<gatling.java.opts>-Xms1g -Xmx4g</gatling.java.opts>
-		<gatling.simulation>com.hindsightsoftware.benchmark.BehaveProSimulation</gatling.simulation>
+		<gatling.simulation>com.hindsightsoftware.benchmark.${simulationName}</gatling.simulation>
 
 		<!-- S3 integration settings -->
 		<s3.upload.enabled>true</s3.upload.enabled>
@@ -163,8 +163,9 @@
 								<KeyName>jira-keypair</KeyName>
 								<CustomDnsName/>
 								<JiraProduct>Software</JiraProduct>
-								<ClusterNodeMin>4</ClusterNodeMin>
-								<ClusterNodeMax>4</ClusterNodeMax>
+								<ClusterNodeMin>1</ClusterNodeMin>
+								<ClusterNodeMax>1</ClusterNodeMax>
+								<DBStorage>40</DBStorage>
 							</parameters>
 							<exports>
 								<param>JIRAURL</param>
@@ -206,6 +207,21 @@
 
   <profiles>
     <!-- Default profile to run Gatling tests locally -->
+    <profile>
+      <id>jira-profile</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <simulationName>JiraSimulation</simulationName>
+      </properties>
+    </profile>
+    <profile>
+      <id>behave-profile</id>
+      <properties>
+       	<simulationName>BehaveProSimulation</simulationName>
+      </properties>
+    </profile>
     <profile>
       <id>local</id>
       <activation>
