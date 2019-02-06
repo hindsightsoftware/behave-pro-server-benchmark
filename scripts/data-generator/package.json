@@ -1,0 +1,20 @@
+{
+  "name": "scripts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "behavepro-data-generator",
+  "dependencies": {
+    "mysql": "^2.16.0",
+    "pg": "^7.8.0",
+    "pg-promise": "^8.5.5",
+    "standard": "^12.0.1",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "generate": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}

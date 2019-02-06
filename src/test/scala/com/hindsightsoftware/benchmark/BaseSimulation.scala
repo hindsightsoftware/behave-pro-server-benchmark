@@ -10,16 +10,23 @@ import io.gatling.core.feeder._
 import io.gatling.core.Predef._
 import scala.util.Random
 
+import io.gatling.core.protocol.{ Protocol }
 import scala.concurrent.duration._
 import processes._
 
 class BaseSimulation extends Simulation {
-  protected val conf = ConfigFactory.load("cloudformation.conf")
-  protected val httpConf = http
-    .baseURL(conf.getString("JIRAURL"))
-    .acceptHeader("*/*")
-    .userAgentHeader("Gatling")
+  protected def getHttpConf(): Protocol = {
+    try {
+      http.baseURL(conf.getString("JIRAURL")).acceptHeader("*/*").userAgentHeader("Gatling")
+    } catch {
+      case e: com.typesafe.config.ConfigException => {
+        http.baseURL("http://localhost:8080").acceptHeader("*/*").userAgentHeader("Gatling")
+      }
+    }
+  }
 
+  protected val conf = ConfigFactory.load("cloudformation.conf")
+  protected val httpConf = getHttpConf()
   protected val userFeeder = csv("users_with_roles.csv").circular
   protected val searchFeeder = csv("issue_dictionary.csv").random
 
