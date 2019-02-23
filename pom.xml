@@ -22,10 +22,11 @@
         <gatling.java.opts>-Xms1g -Xmx4g</gatling.java.opts> -->
 
         <!-- Main settings -->
-        <behaveProBuild>1006103</behaveProBuild>
+        <behaveProBuild>1006104</behaveProBuild>
 
         <skipDownloadGatling>false</skipDownloadGatling>
         <skipCloudFormation>false</skipCloudFormation>
+        <skipCloudFormationTearDown>false</skipCloudFormationTearDown>
         <skipAddonUpload>false</skipAddonUpload>
         <skipAddonLicense>false</skipAddonLicense>
 
@@ -41,7 +42,7 @@
         <s3AwsCredentials>${project.basedir}/src/test/resources/s3.aws.user/credentials</s3AwsCredentials>
         <jiraMinNodes>1</jiraMinNodes>
         <jiraMaxNodes>1</jiraMaxNodes>
-        <JiraVersion>7.13.1</JiraVersion>
+        <jiraVersion>7.13.1</jiraVersion>
     </properties>
 
     <dependencyManagement>
@@ -113,28 +114,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <!-- Plugin for uploading addons into JIRA -->
-            <plugin>
-                <groupId>com.hindsightsoftware.upkeep</groupId>
-                <artifactId>jira-upload-addon-maven-plugin</artifactId>
-                <version>1.0</version>
-                <executions>
-                    <execution>
-                        <id>upload-jira-addon</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>upload</goal>
-                        </goals>
-                        <configuration>
-                            <addonUrl>https://marketplace.atlassian.com/download/apps/1211664/version/${behaveProBuild}</addonUrl>
-                            <addonKey>pro.behave.hosted-key</addonKey>
-                            <skip>${skipAddonUpload}</skip>
-                            <addonLicenseSkip>${skipAddonLicense}</addonLicenseSkip>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 
@@ -167,6 +146,27 @@
                         <artifactId>scala-maven-plugin</artifactId>
                         <version>${scala-maven-plugin.version}</version>
                     </plugin>
+                    <!-- Plugin for uploading addons into JIRA -->
+                    <plugin>
+                        <groupId>com.hindsightsoftware.upkeep</groupId>
+                        <artifactId>jira-upload-addon-maven-plugin</artifactId>
+                        <version>1.0</version>
+                        <executions>
+                            <execution>
+                                <id>upload-jira-addon</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>upload</goal>
+                                </goals>
+                                <configuration>
+                                    <addonUrl>https://marketplace.atlassian.com/download/apps/1211664/version/${behaveProBuild}</addonUrl>
+                                    <addonKey>pro.behave.hosted-key</addonKey>
+                                    <skip>${skipAddonUpload}</skip>
+                                    <addonLicenseSkip>${skipAddonLicense}</addonLicenseSkip>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                     <plugin>
                         <groupId>io.gatling</groupId>
                         <artifactId>gatling-maven-plugin</artifactId>
@@ -191,19 +191,6 @@
             <id>remote</id>
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>com.ea.gatling</groupId>
-                        <artifactId>gatling-aws-maven-plugin</artifactId>
-                        <version>1.0.14</version>
-                        <executions>
-                            <execution>
-                                <phase>integration-test</phase>
-                                <goals>
-                                    <goal>execute</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
                     <!-- Plugin for creating JIRA Data Center on AWS -->
                     <plugin>
                         <groupId>com.hindsightsoftware.upkeep</groupId>
@@ -221,12 +208,13 @@
                                         <AssociatePublicIpAddress>true</AssociatePublicIpAddress>
                                         <DBMasterUserPassword>${dbMasterUserPassword}</DBMasterUserPassword>
                                         <DBPassword>${dbMasterPassword}</DBPassword>
-                                        <KeyName>${keyPairName}</KeyName>
+                                        <KeyPairName>${keyPairName}</KeyPairName>
                                         <CustomDnsName/>
                                         <JiraProduct>Software</JiraProduct>
                                         <JiraVersion>${jiraVersion}</JiraVersion>
                                         <ClusterNodeMin>${jiraMinNodes}</ClusterNodeMin>
                                         <ClusterNodeMax>${jiraMaxNodes}</ClusterNodeMax>
+                                        <CidrBlock>172.31.0.0/16</CidrBlock>
                                     </parameters>
                                     <exports>
                                         <param>JIRAURL</param>
@@ -244,6 +232,44 @@
                                 <phase>post-integration-test</phase>
                                 <goals>
                                     <goal>stop</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>${skipCloudFormationTearDown}</skip>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Plugin for uploading addons into JIRA -->
+                    <plugin>
+                        <groupId>com.hindsightsoftware.upkeep</groupId>
+                        <artifactId>jira-upload-addon-maven-plugin</artifactId>
+                        <version>1.0</version>
+                        <executions>
+                            <execution>
+                                <id>upload-jira-addon</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>upload</goal>
+                                </goals>
+                                <configuration>
+                                    <addonUrl>https://marketplace.atlassian.com/download/apps/1211664/version/${behaveProBuild}</addonUrl>
+                                    <addonKey>pro.behave.hosted-key</addonKey>
+                                    <skip>${skipAddonUpload}</skip>
+                                    <addonLicenseSkip>${skipAddonLicense}</addonLicenseSkip>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Run Gatling tests on EC2 instances -->
+                    <plugin>
+                        <groupId>com.ea.gatling</groupId>
+                        <artifactId>gatling-aws-maven-plugin</artifactId>
+                        <version>1.0.14</version>
+                        <executions>
+                            <execution>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>execute</goal>
                                 </goals>
                             </execution>
                         </executions>

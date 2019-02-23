@@ -8,6 +8,6 @@ class BehaveProSimulation extends BaseSimulation {
   runWithPlugin = true
 
   setUp(
-    scn.inject(rampUsers(1) over(5 minutes))
-  ).protocols(httpConf).maxDuration(10 minutes)
+    scn.inject(rampUsers(100) over(600 seconds))
+  ).protocols(httpConf).maxDuration(30 minutes)
 }
