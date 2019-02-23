@@ -17,6 +17,6 @@ module.exports.create = async function (projectId) {
   let values = [['me77gtz9lvvsqc0korsep5dcqdjln9dxfytr','EN',projectId,false,3,'AUTOMATIC']]
   await db.flush('AO_6797AA_PROJECT_SETTINGS', PROJECT_SETTINGS_KEYS, values)
 
-  values = [[ENTITY_PROPERTY_ID++,'ProjectProperty',projectId,'disableBehavePro',CURDATE(),CURDATE(),'false']]
-  await db.flush('entity_property', ENTITY_PROPERTY_KEYS, values)
+  //values = [[ENTITY_PROPERTY_ID++,'ProjectProperty',projectId,'disableBehavePro',CURDATE(),CURDATE(),'false']]
+  //await db.flush('entity_property', ENTITY_PROPERTY_KEYS, values)
 }
