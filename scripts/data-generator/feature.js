@@ -15,8 +15,9 @@ function CURDATE() {
 }
 
 module.exports.writeSequences = async function () {
-  await db.flush('AO_6797AA_FEATURE_SEQUENCE', ["ID"], [[NEXT_FEATURE_ID]])
-  await db.flush('AO_6797AA_SCENARIO_SEQUENCE', ["ID"], [[NEXT_SCENARIO_ID]])
+  await db.query(`SELECT pg_catalog.setval(\'public.\"AO_6797AA_FEATURE_EVENT_ID_seq\"\', ${NEXT_EVENT_ID}, true);`)
+  await db.query(`SELECT pg_catalog.setval(\'public.\"AO_6797AA_SCENARIO_SNAPSHOT_ID_seq\"\', ${NEXT_SCENARIO_SNAPSHORT_ID}, true);`)
+  await db.query(`SELECT pg_catalog.setval(\'public.\"AO_6797AA_SCENARIO_LINK_ID_seq\"\', ${NEXT_SCENARIO_LINK_ID}, true);`)
 }
 
 module.exports.getFeatureIds = async function () {

@@ -12,9 +12,20 @@ function CURDATE() {
   return new Date()
 }
 
+module.exports.writeSequences = async function () {
+  await db.query(`SELECT pg_catalog.setval(\'public.\"AO_6797AA_ISSUES_ID_seq\"\', ${NEXT_ISSUE_ID}, true);`)
+  await db.query(`SELECT pg_catalog.setval(\'public.\"AO_6797AA_QUESTION_ENTITY_ID_seq\"\', ${NEXT_QUESTION_ID}, true);`)
+  await db.query(`SELECT pg_catalog.setval(\'public.\"AO_6797AA_APPROVAL_ENTITY_ID_seq\"\', ${NEXT_APPROVAL_ID}, true);`)
+}
+
 module.exports.getIssueIds = async function (projectId) {
   let issues = await db.query(`SELECT ID FROM jiraissue where PROJECT=${projectId};`)
   return issues.map(i => parseInt(i.id))
+}
+
+module.exports.getBehaveIssueIds = async function (projectId) {
+  let issues = await db.query(`SELECT "ID" FROM "AO_6797AA_ISSUES" where "PROJECT"=${projectId};`)
+  return issues.map(i => parseInt(i['ID']))
 }
 
 module.exports.createBehaveIssue = async function (projectId, issueId) {

@@ -21,3 +21,5 @@ src/test/resources/s3.aws.user/credentials
 .classpath
 .project
 .settings
+*.pem
+*.log

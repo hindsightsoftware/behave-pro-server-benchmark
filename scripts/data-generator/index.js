@@ -78,13 +78,17 @@ async function main () {
       }
     }
 
+    await Feature.writeSequences()
+    await Tag.writeSequences()
+
     // Create behave issue for each linked issue
     console.log('Creating', issueIds.length, 'behave issues for project', projectId, '...')
     await Issue.createBehaveIssues(projectId, issueIds)
+    let behaveIssueIds = await Issue.getBehaveIssueIds(projectId)
 
     // Create questions and approvals for each issue
-    console.log('Creating', QUESTIONS_PER_ISSUE, 'questions and', APPROVALS_PER_ISSUE, 'approvals for', issueIds.length, 'issues in project', projectId)
-    for (let issueId = 1; issueId <= issueIds.length; issueId++) {
+    console.log('Creating', QUESTIONS_PER_ISSUE, 'questions and', APPROVALS_PER_ISSUE, 'approvals for', behaveIssueIds.length, 'issues in project', projectId)
+    for (let issueId of behaveIssueIds) {
       // Questions and Approvals use FOREIGN KEY (`ISSUE_ID`) REFERENCES `AO_6797AA_ISSUES` (`ID`))
       // which is auto incrementing!
       // We can safely assume there is exactly len(issueIds.length) AO_6797AA_ISSUES issues!
@@ -102,14 +106,16 @@ async function main () {
       await Issue.createApprovals(projectId, issueId, approvalUserKeys)
     }
 
+    await Issue.writeSequences()
+
     // Create test sessions
     console.log('Creating', issueIds.length, 'test sessions...')
-    for (let issueId = 1; issueId <= issueIds.length; issueId++) {
+    for (let issueId of issueIds) {
       await TestSessions.createSession(projectId, issueId, pick(issueIds), 'Test Session ' + random(), 'Some random chart', pick(userKeys))
     }
-  }
 
-  await Feature.writeSequences()
+    await TestSessions.writeSequences()
+  }
 }
 
 (async () => {

@@ -27,6 +27,21 @@
         <skipDownloadGatling>false</skipDownloadGatling>
         <skipCloudFormation>false</skipCloudFormation>
         <skipAddonUpload>false</skipAddonUpload>
+        <skipAddonLicense>false</skipAddonLicense>
+
+        <!-- For remote profile only -->
+        <dbMasterUserPassword>jirapassword</dbMasterUserPassword>
+        <dbMasterPassword>jirapassword</dbMasterPassword>
+        <dbRestoreBucket>behave-pro-server-performance-dataset</dbRestoreBucket>
+        <dbRestorePsqlFileName>dataset-large-jira-with-behave-pro.psql</dbRestorePsqlFileName>
+        <dbRestoreIndexesFileName>dataset-large-jira-indexes.tar.gz</dbRestoreIndexesFileName>
+        <keyPairName>jira-keypair</keyPairName>
+        <sshPrivateKeyFile>${project.basedir}/src/test/resources/jira-keypair.pem</sshPrivateKeyFile>
+        <s3AwsConfig>${project.basedir}/src/test/resources/s3.aws.user/config</s3AwsConfig>
+        <s3AwsCredentials>${project.basedir}/src/test/resources/s3.aws.user/credentials</s3AwsCredentials>
+        <jiraMinNodes>1</jiraMinNodes>
+        <jiraMaxNodes>1</jiraMaxNodes>
+        <JiraVersion>7.13.1</JiraVersion>
     </properties>
 
     <dependencyManagement>
@@ -115,6 +130,7 @@
                             <addonUrl>https://marketplace.atlassian.com/download/apps/1211664/version/${behaveProBuild}</addonUrl>
                             <addonKey>pro.behave.hosted-key</addonKey>
                             <skip>${skipAddonUpload}</skip>
+                            <addonLicenseSkip>${skipAddonLicense}</addonLicenseSkip>
                         </configuration>
                     </execution>
                 </executions>
@@ -127,7 +143,7 @@
         <profile>
             <id>jira-profile</id>
             <properties>
-                <simulationName>JiraSimulation</simulationName>
+                <simulationName>com.hindsightsoftware.benchmark.JiraSimulation</simulationName>
             </properties>
         </profile>
         <profile>
@@ -136,7 +152,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <simulationName>BehaveProSimulation</simulationName>
+                <simulationName>com.hindsightsoftware.benchmark.BehaveProSimulation</simulationName>
             </properties>
         </profile>
         <profile>
@@ -158,7 +174,7 @@
                         <executions>
                             <execution>
                                 <configuration>
-                                    <simulationClass>com.hindsightsoftware.benchmark.${simulationName}</simulationClass>
+                                    <simulationClass>${simulationName}</simulationClass>
                                 </configuration>
                                 <phase>integration-test</phase>
                                 <goals>
@@ -184,6 +200,50 @@
                                 <phase>integration-test</phase>
                                 <goals>
                                     <goal>execute</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Plugin for creating JIRA Data Center on AWS -->
+                    <plugin>
+                        <groupId>com.hindsightsoftware.upkeep</groupId>
+                        <artifactId>jira-cloudformation-maven-plugin</artifactId>
+                        <version>1.0</version>
+                        <executions>
+                            <execution>
+                                <id>start-cloud-formation</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>start</goal>
+                                </goals>
+                                <configuration>
+                                    <parameters>
+                                        <AssociatePublicIpAddress>true</AssociatePublicIpAddress>
+                                        <DBMasterUserPassword>${dbMasterUserPassword}</DBMasterUserPassword>
+                                        <DBPassword>${dbMasterPassword}</DBPassword>
+                                        <KeyName>${keyPairName}</KeyName>
+                                        <CustomDnsName/>
+                                        <JiraProduct>Software</JiraProduct>
+                                        <JiraVersion>${jiraVersion}</JiraVersion>
+                                        <ClusterNodeMin>${jiraMinNodes}</ClusterNodeMin>
+                                        <ClusterNodeMax>${jiraMaxNodes}</ClusterNodeMax>
+                                    </parameters>
+                                    <exports>
+                                        <param>JIRAURL</param>
+                                        <param>LoadBalancerURL</param>
+                                    </exports>
+                                    <s3RestoreBucket>${dbRestoreBucket}</s3RestoreBucket>
+                                    <s3RestorePsqlFileName>${dbRestorePsqlFileName}</s3RestorePsqlFileName>
+                                    <s3RestoreIndexesFileName>${dbRestoreIndexesFileName}</s3RestoreIndexesFileName>
+                                    <rdsPassword>${dbMasterPassword}</rdsPassword>
+                                    <skip>${skipCloudFormation}</skip>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>stop-cloud-formation</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>stop</goal>
                                 </goals>
                             </execution>
                         </executions>

@@ -11,6 +11,11 @@ function CURDATE() {
   return new Date()
 }
 
+module.exports.writeSequences = async function () {
+  await db.query(`SELECT pg_catalog.setval(\'public.\"AO_6797AA_TEST_SESSION_EVENT_ID_seq\"\', ${NEXT_SESSION_ID}, true);`)
+  await db.query(`SELECT pg_catalog.setval(\'public.\"AO_6797AA_SESSION_SNAPSHOT_ID_seq\"\', ${NEXT_SESSION_SNAPSHOT_ID}, true);`)
+}
+
 module.exports.createSession = async function (projectId, issueId, defectId, name, chart, userKey) {
   let sessionId = uuidv1()
   let timestamp = Math.floor((new Date()).getTime() / 1000)
