@@ -1,9 +1,9 @@
 const pgp = require('pg-promise')()
 
 const client = pgp({
-  user: process.env.POSTGRESQL_USERNAME || 'jirauser',
-  host: process.env.POSTGRESQL_DBHOST || 'localhost',
-  database: process.env.POSTGRESQL_DATABASE || 'jiradb',
+  user: process.env.POSTGRESQL_USERNAME || 'postgres',
+  host: process.env.POSTGRESQL_DBHOST || 'jira-data-center-jiradcstack-1fvu0vx3mq6ph.c27ef3f22zvq.us-east-2.rds.amazonaws.com',
+  database: process.env.POSTGRESQL_DATABASE || 'jira',
   password: process.env.POSTGRESQL_PASSWORD || 'jirapassword',
   port: process.env.POSTGRESQL_PORT || undefined,
 })

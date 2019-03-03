@@ -36,6 +36,8 @@
         <dbRestoreBucket>behave-pro-server-performance-dataset</dbRestoreBucket>
         <dbRestorePsqlFileName>dataset-large-jira-with-behave-pro.psql</dbRestorePsqlFileName>
         <dbRestoreIndexesFileName>dataset-large-jira-indexes.tar.gz</dbRestoreIndexesFileName>
+        <s3RestoreIndexesEnabled>true</s3RestoreIndexesEnabled>
+        <s3RestoreDatabaseEnabled>true</s3RestoreDatabaseEnabled>
         <keyPairName>jira-keypair</keyPairName>
         <sshPrivateKeyFile>${project.basedir}/src/test/resources/jira-keypair.pem</sshPrivateKeyFile>
         <s3AwsConfig>${project.basedir}/src/test/resources/s3.aws.user/config</s3AwsConfig>
@@ -43,6 +45,27 @@
         <jiraMinNodes>1</jiraMinNodes>
         <jiraMaxNodes>1</jiraMaxNodes>
         <jiraVersion>7.13.1</jiraVersion>
+        <jiraAvailabilityZones>us-east-2a,us-east-2b</jiraAvailabilityZones>
+
+        <!-- EA's Gtaling related properties (Remote only) -->
+        <ssh.user>ec2-user</ssh.user>
+        <ssh.private.key>${project.basedir}/src/test/resources/jira-keypair.pem</ssh.private.key>
+        <ec2.key.pair.name>jira-keypair</ec2.key.pair.name>
+        <ec2.security.group>default</ec2.security.group>
+        <ec2.instance.count>1</ec2.instance.count>
+        <ec2.end.point>https://ec2.us-east-2.amazonaws.com</ec2.end.point>
+        <ec2.ami.id>ami-0de7daa7385332688</ec2.ami.id>
+        <ec2.force.termination>true</ec2.force.termination>
+		<ec2.keep.alive>true</ec2.keep.alive>
+		<ec2.instance.type>t2.small</ec2.instance.type>
+        <gatling.local.home>${project.basedir}/gatling/gatling-charts-highcharts-bundle-2.3.0/bin/gatling.sh</gatling.local.home>
+        <gatling.install.script>${project.basedir}/src/test/resources/install-gatling.sh</gatling.install.script>
+        <gatling.root>gatling-charts-highcharts-bundle-2.3.0</gatling.root>
+        <gatling.java.opts> -Xms1g -Xmx25g -Xss8M -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256M</gatling.java.opts>
+        <gatling.simulation>com.hindsightsoftware.benchmark.BehaveProSimulation</gatling.simulation>
+        <s3.upload.enabled>true</s3.upload.enabled>
+        <s3.bucket>behave-pro-loadtest-results</s3.bucket>
+        <s3.subfolder>gatling</s3.subfolder>
     </properties>
 
     <dependencyManagement>
@@ -214,7 +237,9 @@
                                         <JiraVersion>${jiraVersion}</JiraVersion>
                                         <ClusterNodeMin>${jiraMinNodes}</ClusterNodeMin>
                                         <ClusterNodeMax>${jiraMaxNodes}</ClusterNodeMax>
-                                        <CidrBlock>172.31.0.0/16</CidrBlock>
+                                        <CidrBlock>0.0.0.0/0</CidrBlock>
+                                        <AccessCIDR>0.0.0.0/0</AccessCIDR>
+                                        <AvailabilityZones>${jiraAvailabilityZones}</AvailabilityZones>
                                     </parameters>
                                     <exports>
                                         <param>JIRAURL</param>
@@ -223,7 +248,12 @@
                                     <s3RestoreBucket>${dbRestoreBucket}</s3RestoreBucket>
                                     <s3RestorePsqlFileName>${dbRestorePsqlFileName}</s3RestorePsqlFileName>
                                     <s3RestoreIndexesFileName>${dbRestoreIndexesFileName}</s3RestoreIndexesFileName>
+                                    <s3RestoreDatabaseEnabled>${s3RestoreDatabaseEnabled}</s3RestoreDatabaseEnabled>
+                                    <s3RestoreIndexesEnabled>${s3RestoreIndexesEnabled}</s3RestoreIndexesEnabled>
                                     <rdsPassword>${dbMasterPassword}</rdsPassword>
+                                    <sshPrivateKeyFile>${sshPrivateKeyFile}</sshPrivateKeyFile>
+                                    <s3AwsCredentials>${s3AwsCredentials}</s3AwsCredentials>
+                                    <s3AwsConfig>${s3AwsConfig}</s3AwsConfig>
                                     <skip>${skipCloudFormation}</skip>
                                 </configuration>
                             </execution>
