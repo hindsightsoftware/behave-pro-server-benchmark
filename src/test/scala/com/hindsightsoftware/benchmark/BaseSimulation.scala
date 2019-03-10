@@ -28,7 +28,7 @@ class BaseSimulation extends Simulation {
   protected val conf = ConfigFactory.load("cloudformation.conf")
   protected val httpConf = getHttpConf()
   protected val userFeeder = csv("users_with_roles.csv").circular
-  protected val searchFeeder = csv("issue_dictionary.csv").random
+  //protected val searchFeeder = csv("issue_dictionary.csv").random
 
   // index records by project
   protected val recordsByUser: Map[String, IndexedSeq[Record[String]]] =
@@ -148,15 +148,15 @@ class BaseSimulation extends Simulation {
       }
 
       // Search with random keyword from dictionary
-      .repeat(1) {
-        feed(searchFeeder)
-        .exec(Issue.search)
-        .pause(1)
-        .repeat(2){
-          exec(Issue.searchAll)
-          .pause(1)
-        }
-      }
+      //.repeat(1) {
+      //  feed(searchFeeder)
+      //  .exec(Issue.search)
+      //  .pause(1)
+      //  .repeat(2){
+      //    exec(Issue.searchAll)
+      //    .pause(1)
+      //  }
+      //}
 
       // Fetch projects
       .exec(Project.browseAll)

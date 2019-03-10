@@ -57,15 +57,16 @@
         <ec2.ami.id>ami-0de7daa7385332688</ec2.ami.id>
         <ec2.force.termination>true</ec2.force.termination>
 		<ec2.keep.alive>true</ec2.keep.alive>
-		<ec2.instance.type>t2.small</ec2.instance.type>
+		<ec2.instance.type>t2.medium</ec2.instance.type>
         <gatling.local.home>${project.basedir}/gatling/gatling-charts-highcharts-bundle-2.3.0/bin/gatling.sh</gatling.local.home>
         <gatling.install.script>${project.basedir}/src/test/resources/install-gatling.sh</gatling.install.script>
         <gatling.root>gatling-charts-highcharts-bundle-2.3.0</gatling.root>
-        <gatling.java.opts> -Xms1g -Xmx25g -Xss8M -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256M</gatling.java.opts>
+        <gatling.java.opts> -Xms1g -Xmx2g -Xss8M -XX:+CMSClassUnloadingEnabled</gatling.java.opts>
         <gatling.simulation>com.hindsightsoftware.benchmark.BehaveProSimulation</gatling.simulation>
         <s3.upload.enabled>true</s3.upload.enabled>
         <s3.bucket>behave-pro-loadtest-results</s3.bucket>
         <s3.subfolder>gatling</s3.subfolder>
+        <path.config.file>${project.basedir}/src/test/resources/cloudformation.conf</path.config.file>
     </properties>
 
     <dependencyManagement>
